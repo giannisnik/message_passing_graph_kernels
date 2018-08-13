@@ -13,10 +13,10 @@ Extract the datasets into the `datasets` folder.
 Use the following command to create the kernel matrix:
 
 ```
-$ python python MPGK_AA.py dataset n_iterations use_node_labels use_node_attributes
+$ python MPGK_AA.py dataset n_iterations use_node_labels use_node_attributes
 ```
 
 ### Example
 ```
-$ python python MPGK_AA.py MUTAG 3 1 0
+$ python MPGK_AA.py MUTAG 3 1 0
 ```
