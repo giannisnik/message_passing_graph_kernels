@@ -10,7 +10,7 @@ Download the datasets from: https://ls11-www.cs.tu-dortmund.de/staff/morris/grap
 Extract the datasets into the `datasets` folder.
 
 ### Run the model
-Use the following command:
+Use the following command to create the kernel matrix:
 
 ```
 $ python python MPGK_AA.py dataset n_iterations use_node_labels use_node_attributes
