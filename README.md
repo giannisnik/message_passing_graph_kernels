@@ -7,7 +7,7 @@ Code is written in Python 3.6 and requires:
 * scikit-learn 0.18
 
 ### Datasets
-Download the datasets from: https://ls11-www.cs.tu-dortmund.de/staff/morris/graphkerneldatasets
+Download the datasets from: https://ls11-www.cs.tu-dortmund.de/staff/morris/graphkerneldatasets.
 Extract the datasets into the `datasets` folder.
 
 ### Run the model
