@@ -1,6 +1,7 @@
 import argparse
 import networkx as nx
 import numpy as np
+import os
 import sys
 from scipy.sparse.linalg import svds
 from sklearn.cluster import KMeans
