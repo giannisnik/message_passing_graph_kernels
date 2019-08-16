@@ -172,7 +172,7 @@ if __name__ == "__main__":
     parser.add_argument(
         '-n',
         type=int,
-        default=3,
+        default=4,
         help='Maximum number of iterations'
     )
 
