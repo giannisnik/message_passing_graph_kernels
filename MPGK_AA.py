@@ -57,7 +57,7 @@ def compute_histograms(X, nbrs, n_clusters, limit):
     T, idx2node = create_tree(X, n_clusters, limit)
 
     outdegs = T.out_degree()
-    leaves = set([n for n in outdegs if outdegs[n]==0])
+    leaves = set([n for n, degree in outdegs if degree == 0])
     n_leaves = len(leaves)
     root = 0
     path = nx.shortest_path(T, source=root)
