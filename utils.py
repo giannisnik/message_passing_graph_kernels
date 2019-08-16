@@ -82,4 +82,4 @@ Requested node attributes, but was unable to find the respective file.'''
             class_labels.append(int(line[:-1]))
     
     class_labels  = np.array(class_labels, dtype=np.float)
-    return Gs, class_labels
+    return Gs, class_labels, use_node_labels, use_node_attributes

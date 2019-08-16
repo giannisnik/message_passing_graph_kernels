@@ -198,7 +198,16 @@ if __name__ == "__main__":
     use_node_labels = args.labels
     use_node_attributes = args.attributes
 
-    graphs, labels = load_data(ds_name, args.ROOT, use_node_labels, use_node_attributes)
+    # Notice that the function returns potentially a new value for the
+    # node labels and node attributes in case the client requested 'em
+    # but they cannot be found.
+    graphs, labels, use_node_labels, use_node_attributes = load_data(
+        ds_name,
+        args.ROOT,
+        use_node_labels,
+        use_node_attributes
+    )
+
     np.save(ds_name+"_labels", labels)
     K = mpgk_aa(graphs, n_iter, 4, 8)
     np.save("kernel_"+ds_name, K)
