@@ -190,6 +190,12 @@ if __name__ == "__main__":
         help='If set, uses node attributes'
     )
 
+    parser.add_argument(
+        '-o', '--output',
+        required=True,
+        help='Output directory'
+    )
+
     args = parser.parse_args()
 
     # read the parameters
@@ -208,6 +214,20 @@ if __name__ == "__main__":
         use_node_attributes
     )
 
-    np.save(ds_name+"_labels", labels)
-    K = mpgk_aa(graphs, n_iter, 4, 8)
-    np.save("kernel_"+ds_name, K)
+    # Create kernel matrices for a different number of maximum
+    # iterations
+    matrices = {
+            str(i): mpgk_aa(graphs, n_iter, 4, 8)
+            for i in range(1, n_iter + 1)
+    }
+
+    # Don't forget to store the labels!
+    matrices['y'] = labels
+
+    os.makedirs(args.output, exist_ok=True)
+
+    # TODO: make it possible to override this?
+    np.savez(
+        os.path.join(args.output, 'MP.npz'),
+        **matrices
+    )
