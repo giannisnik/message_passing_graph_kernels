@@ -23,9 +23,14 @@ def load_data(ds_name, root, use_node_labels, use_node_attributes):
             edge[1] = edge[1].replace(" ", "")
             Gs[node2graph[int(edge[0])]-1].add_edge(int(edge[0]), int(edge[1]))
     
-    if use_node_labels:
+    node_labels_path = os.path.join(
+        root,
+        "%s/%s_node_labels.txt"%(ds_name,ds_name)
+    )
+
+    if use_node_labels and os.path.exists(node_labels_path):
         d = {}
-        with open(os.path.join(root, "%s/%s_node_labels.txt"%(ds_name,ds_name)), "r") as f:
+        with open(node_labels_path, "r") as f:
             c = 1
             for line in f:
                 node_label = int(line[:-1])
@@ -39,6 +44,12 @@ def load_data(ds_name, root, use_node_labels, use_node_attributes):
                 node_label_one_hot = np.zeros(len(d))
                 node_label_one_hot[d[G.node[node]['label']]] = 1
                 G.node[node]['label'] = node_label_one_hot
+    else:
+        logging.warn('''
+Requested node labels, but was unable to find the respective file.'''
+        )
+
+        use_node_labels = False
 
     node_attribute_path = os.path.join(
         root,
