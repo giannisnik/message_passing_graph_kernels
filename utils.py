@@ -1,11 +1,13 @@
 import networkx as nx
 import numpy as np
 
-def load_data(ds_name, use_node_labels, use_node_attributes):
+import os
+
+def load_data(ds_name, root, use_node_labels, use_node_attributes):
     node2graph = {}
     Gs = []
     
-    with open("datasets/%s/%s_graph_indicator.txt"%(ds_name,ds_name), "r") as f:
+    with open(os.path.join(root, "%s/%s_graph_indicator.txt"%(ds_name,ds_name)), "r") as f:
         c = 1
         for line in f:
             node2graph[c] = int(line[:-1])
@@ -14,7 +16,7 @@ def load_data(ds_name, use_node_labels, use_node_attributes):
             Gs[-1].add_node(c)
             c += 1
     
-    with open("datasets/%s/%s_A.txt"%(ds_name,ds_name), "r") as f:
+    with open(os.path.join(root, "%s/%s_A.txt"%(ds_name,ds_name)), "r") as f:
         for line in f:
             edge = line[:-1].split(",")
             edge[1] = edge[1].replace(" ", "")
@@ -22,7 +24,7 @@ def load_data(ds_name, use_node_labels, use_node_attributes):
     
     if use_node_labels:
         d = {}
-        with open("datasets/%s/%s_node_labels.txt"%(ds_name,ds_name), "r") as f:
+        with open(os.path.join(root, "%s/%s_node_labels.txt"%(ds_name,ds_name)), "r") as f:
             c = 1
             for line in f:
                 node_label = int(line[:-1])
@@ -38,7 +40,7 @@ def load_data(ds_name, use_node_labels, use_node_attributes):
                 G.node[node]['label'] = node_label_one_hot
 
     if use_node_attributes:
-        with open("datasets/%s/%s_node_attributes.txt"%(ds_name,ds_name), "r") as f:
+        with open(os.path.join(root, "%s/%s_node_attributes.txt"%(ds_name,ds_name)), "r") as f:
             c = 1
             for line in f:
                 node_attributes = line[:-1].split(',')
@@ -52,7 +54,7 @@ def load_data(ds_name, use_node_labels, use_node_attributes):
                 G.node[node]['attributes'] = np.array(G.degree(node))
 
     class_labels = []
-    with open("datasets/%s/%s_graph_labels.txt"%(ds_name,ds_name), "r") as f:
+    with open(os.path.join(root, "%s/%s_graph_labels.txt"%(ds_name,ds_name)), "r") as f:
         for line in f:
             class_labels.append(int(line[:-1]))
     

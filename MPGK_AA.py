@@ -1,3 +1,4 @@
+import argparse
 import networkx as nx
 import numpy as np
 import sys
@@ -164,13 +165,40 @@ def mpgk_aa(Gs, h, n_clusters, limit):
     return K
 
 if __name__ == "__main__":
-    # read the parameters
-    ds_name = sys.argv[1]
-    n_iter = int(sys.argv[2])
-    use_node_labels = int(sys.argv[3])
-    use_node_attributes = int(sys.argv[4])
 
-    graphs, labels = load_data(ds_name, use_node_labels, use_node_attributes)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('ROOT', type=str, help='Root directory for data sets')
+    parser.add_argument('NAME', type=str, help='Data set name')
+    parser.add_argument(
+        '-n',
+        type=int,
+        default=3,
+        help='Maximum number of iterations'
+    )
+
+    parser.add_argument(
+        '-l', '--labels',
+        action='store_true',
+        default=False,
+        help='If set, uses node labels'
+    )
+
+    parser.add_argument(
+        '-a', '--attributes',
+        action='store_true',
+        default=False,
+        help='If set, uses node attributes'
+    )
+
+    args = parser.parse_args()
+
+    # read the parameters
+    ds_name = args.NAME
+    n_iter = int(args.n)
+    use_node_labels = args.labels
+    use_node_attributes = args.attributes
+
+    graphs, labels = load_data(ds_name, args.ROOT, use_node_labels, use_node_attributes)
     np.save(ds_name+"_labels", labels)
     K = mpgk_aa(graphs, n_iter, 4, 8)
     np.save("kernel_"+ds_name, K)
