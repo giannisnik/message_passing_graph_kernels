@@ -2,6 +2,7 @@ import networkx as nx
 import numpy as np
 
 import os
+import logging
 
 def load_data(ds_name, root, use_node_labels, use_node_attributes):
     node2graph = {}
@@ -39,14 +40,25 @@ def load_data(ds_name, root, use_node_labels, use_node_attributes):
                 node_label_one_hot[d[G.node[node]['label']]] = 1
                 G.node[node]['label'] = node_label_one_hot
 
-    if use_node_attributes:
-        with open(os.path.join(root, "%s/%s_node_attributes.txt"%(ds_name,ds_name)), "r") as f:
+    node_attribute_path = os.path.join(
+        root,
+        "%s/%s_node_attributes.txt"%(ds_name,ds_name)
+    )
+
+    if use_node_attributes and os.path.exists(node_attribute_path):
+        with open(node_attribute_path, "r") as f:
             c = 1
             for line in f:
                 node_attributes = line[:-1].split(',')
                 node_attributes = [float(attribute) for attribute in node_attributes]
                 Gs[node2graph[c]-1].node[c]['attributes'] = np.array(node_attributes)
                 c += 1
+    else:
+        logging.warn('''
+Requested node attributes, but was unable to find the respective file.'''
+        )
+
+        use_node_attributes = False
 
     if (not use_node_attributes) and (not use_node_labels):
         for G in Gs:
