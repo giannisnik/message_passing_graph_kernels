@@ -3,10 +3,19 @@ import networkx as nx
 import numpy as np
 import os
 import sys
+
 from scipy.sparse.linalg import svds
+
 from sklearn.cluster import KMeans
+from sklearn.exceptions import ConvergenceWarning
+
 from nystrom import Nystrom
 from utils import load_data
+
+# FIXME: this is not super nice, but otherwise, he terminal is spammed
+# with messages pertaining to this...
+import warnings
+warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
 
 def create_tree(X, n_clusters, limit):
