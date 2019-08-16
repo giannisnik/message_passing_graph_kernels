@@ -97,9 +97,9 @@ def compute_histograms(X, nbrs, n_clusters, limit):
 def mpgk_aa(Gs, h, n_clusters, limit):
     N = len(Gs)
     if use_node_labels:
-        d = Gs[0].node[Gs[0].nodes()[0]]['label'].size
+        d = Gs[0].node[list(Gs[0].nodes())[0]]['label'].size
     else:
-        d = Gs[0].node[Gs[0].nodes()[0]]['attributes'].size
+        d = Gs[0].node[list(Gs[0].nodes())[0]]['attributes'].size
 
     idx = np.zeros(N+1, dtype=np.int64)
     nbrs = dict()
@@ -108,7 +108,7 @@ def mpgk_aa(Gs, h, n_clusters, limit):
         n = Gs[i].number_of_nodes()
         idx[i+1] = idx[i] + n
         
-        nodes = Gs[i].nodes()
+        nodes = list(Gs[i].nodes())
         M = np.zeros((n,d))
         nodes2idx = dict()
         for j in range(idx[i], idx[i+1]):
