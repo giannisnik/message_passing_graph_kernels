@@ -1,10 +1,21 @@
+import argparse
 import networkx as nx
 import numpy as np
+import os
 import sys
+
 from scipy.sparse.linalg import svds
+
 from sklearn.cluster import KMeans
+from sklearn.exceptions import ConvergenceWarning
+
 from nystrom import Nystrom
 from utils import load_data
+
+# FIXME: this is not super nice, but otherwise, he terminal is spammed
+# with messages pertaining to this...
+import warnings
+warnings.filterwarnings("ignore", category=ConvergenceWarning)
 
 
 def create_tree(X, n_clusters, limit):
@@ -57,7 +68,7 @@ def compute_histograms(X, nbrs, n_clusters, limit):
     T, idx2node = create_tree(X, n_clusters, limit)
 
     outdegs = T.out_degree()
-    leaves = set([n for n in outdegs if outdegs[n]==0])
+    leaves = set([n for n, degree in outdegs if degree == 0])
     n_leaves = len(leaves)
     root = 0
     path = nx.shortest_path(T, source=root)
@@ -97,9 +108,9 @@ def compute_histograms(X, nbrs, n_clusters, limit):
 def mpgk_aa(Gs, h, n_clusters, limit):
     N = len(Gs)
     if use_node_labels:
-        d = Gs[0].node[Gs[0].nodes()[0]]['label'].size
+        d = Gs[0].node[list(Gs[0].nodes())[0]]['label'].size
     else:
-        d = Gs[0].node[Gs[0].nodes()[0]]['attributes'].size
+        d = Gs[0].node[list(Gs[0].nodes())[0]]['attributes'].size
 
     idx = np.zeros(N+1, dtype=np.int64)
     nbrs = dict()
@@ -108,7 +119,7 @@ def mpgk_aa(Gs, h, n_clusters, limit):
         n = Gs[i].number_of_nodes()
         idx[i+1] = idx[i] + n
         
-        nodes = Gs[i].nodes()
+        nodes = list(Gs[i].nodes())
         M = np.zeros((n,d))
         nodes2idx = dict()
         for j in range(idx[i], idx[i+1]):
@@ -164,13 +175,69 @@ def mpgk_aa(Gs, h, n_clusters, limit):
     return K
 
 if __name__ == "__main__":
-    # read the parameters
-    ds_name = sys.argv[1]
-    n_iter = int(sys.argv[2])
-    use_node_labels = int(sys.argv[3])
-    use_node_attributes = int(sys.argv[4])
 
-    graphs, labels = load_data(ds_name, use_node_labels, use_node_attributes)
-    np.save(ds_name+"_labels", labels)
-    K = mpgk_aa(graphs, n_iter, 4, 8)
-    np.save("kernel_"+ds_name, K)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('ROOT', type=str, help='Root directory for data sets')
+    parser.add_argument('NAME', type=str, help='Data set name')
+    parser.add_argument(
+        '-n',
+        type=int,
+        default=4,
+        help='Maximum number of iterations'
+    )
+
+    parser.add_argument(
+        '-l', '--labels',
+        action='store_true',
+        default=False,
+        help='If set, uses node labels'
+    )
+
+    parser.add_argument(
+        '-a', '--attributes',
+        action='store_true',
+        default=False,
+        help='If set, uses node attributes'
+    )
+
+    parser.add_argument(
+        '-o', '--output',
+        required=True,
+        help='Output directory'
+    )
+
+    args = parser.parse_args()
+
+    # read the parameters
+    ds_name = args.NAME
+    n_iter = int(args.n)
+    use_node_labels = args.labels
+    use_node_attributes = args.attributes
+
+    # Notice that the function returns potentially a new value for the
+    # node labels and node attributes in case the client requested 'em
+    # but they cannot be found.
+    graphs, labels, use_node_labels, use_node_attributes = load_data(
+        ds_name,
+        args.ROOT,
+        use_node_labels,
+        use_node_attributes
+    )
+
+    # Create kernel matrices for a different number of maximum
+    # iterations
+    matrices = {
+            str(i): mpgk_aa(graphs, n_iter, 4, 8)
+            for i in range(1, n_iter + 1)
+    }
+
+    # Don't forget to store the labels!
+    matrices['y'] = labels
+
+    os.makedirs(args.output, exist_ok=True)
+
+    # TODO: make it possible to override this?
+    np.savez(
+        os.path.join(args.output, 'MP.npz'),
+        **matrices
+    )
